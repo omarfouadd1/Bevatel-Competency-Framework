@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bevatel | Competency Framework Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0F172A; --surface:#1E293B; --surface-2:#243146; --border:rgba(148,163,184,.14);
+  --primary:#3B82F6; --primary-soft:rgba(59,130,246,.14);
+  --success:#22C55E; --warning:#F59E0B; --danger:#EF4444;
+  --text:#F8FAFC; --text-2:#94A3B8; --text-3:#64748B;
+  --radius:16px; --radius-sm:10px;
+  --shadow:0 8px 30px rgba(0,0,0,.35);
+  --l1:#64748B; --l2:#3B82F6; --l3:#22C55E; --l4:#F59E0B; --l5:#EF4444;
+  --font-display:'Manrope',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#F3F5F9; --surface:#FFFFFF; --surface-2:#F8FAFC; --border:rgba(15,23,42,.08);
+  --text:#0F172A; --text-2:#475569; --text-3:#94A3B8;
+  --shadow:0 8px 30px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-display); background:var(--bg); color:var(--text);
+  min-height:100vh; transition:background .35s ease,color .35s ease; overflow-x:hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(59,130,246,.16), transparent 60%),
+    radial-gradient(700px 500px at -10% 20%, rgba(34,197,94,.08), transparent 60%);
+}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+.app{display:grid; grid-template-columns:264px 1fr; min-height:100vh; position:relative; z-index:1;}
+
+/* SIDEBAR */
+.sidebar{
+  background:var(--surface); border-right:1px solid var(--border);
+  padding:24px 16px; position:sticky; top:0; height:100vh; overflow-y:auto;
+  display:flex; flex-direction:column; gap:26px; transition:background .35s ease, transform .3s ease;
+  z-index:50;
+}
+.brand{display:flex; align-items:center; gap:12px; padding:4px 10px;}
+.brand-mark{
+  width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,var(--primary),#22D3EE); font-weight:800; font-size:15px; color:#fff;
+  box-shadow:0 6px 18px rgba(59,130,246,.4);
+}
+.brand-text h1{font-size:15px; font-weight:800; letter-spacing:.2px;}
+.brand-text span{font-size:11px; color:var(--text-2); font-family:var(--font-mono);}
+
+.nav-group{display:flex; flex-direction:column; gap:2px;}
+.nav-label{font-size:10.5px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-3); padding:10px 12px 6px;}
+.nav-item{
+  display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px;
+  color:var(--text-2); font-size:13.5px; font-weight:600; cursor:pointer; border:1px solid transparent;
+  transition:all .2s ease; position:relative;
+}
+.nav-item i{width:18px; text-align:center; font-size:14px;}
+.nav-item:hover{background:var(--surface-2); color:var(--text);}
+.nav-item.active{background:var(--primary-soft); color:var(--primary); border-color:rgba(59,130,246,.25);}
+.nav-item.active::before{
+  content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+  width:3px; height:18px; background:var(--primary); border-radius:3px;
+}
+.sidebar-footer{margin-top:auto; padding:14px; border-radius:14px; background:var(--surface-2); border:1px solid var(--border);}
+.sidebar-footer p{font-size:11.5px; color:var(--text-2); line-height:1.5;}
+.sidebar-footer strong{color:var(--text); font-size:12.5px;}
+
+.sidebar-close, .menu-toggle{display:none;}
+
+/* MAIN */
+.main{min-height:100vh; display:flex; flex-direction:column;}
+.topbar{
+  position:sticky; top:0; z-index:40; display:flex; align-items:center; gap:16px;
+  padding:14px 32px; background:color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter:blur(16px); border-bottom:1px solid var(--border);
+}
+.search-wrap{
+  flex:1; max-width:420px; display:flex; align-items:center; gap:10px;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:9px 14px;
+  color:var(--text-3); transition:border-color .2s;
+}
+.search-wrap:focus-within{border-color:var(--primary);}
+.search-wrap input{background:none; border:none; outline:none; color:var(--text); font-size:13.5px; width:100%; font-family:var(--font-display);}
+.top-actions{display:flex; align-items:center; gap:10px; margin-left:auto;}
+.icon-btn{
+  width:38px; height:38px; border-radius:10px; border:1px solid var(--border); background:var(--surface);
+  display:flex; align-items:center; justify-content:center; color:var(--text-2); cursor:pointer; position:relative;
+  transition:all .2s;
+}
+.icon-btn:hover{color:var(--text); border-color:var(--primary);}
+.badge-dot{position:absolute; top:6px; right:7px; width:7px; height:7px; border-radius:50%; background:var(--danger); border:2px solid var(--surface);}
+.date-chip{font-family:var(--font-mono); font-size:11.5px; color:var(--text-2); padding:9px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface); white-space:nowrap;}
+.profile{display:flex; align-items:center; gap:10px; padding:5px 10px 5px 5px; border:1px solid var(--border); border-radius:12px; background:var(--surface); cursor:pointer;}
+.avatar{width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#22D3EE,var(--primary)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff;}
+.profile span{font-size:12.5px; font-weight:700;}
+
+.content{padding:28px 32px 80px; max-width:1400px; width:100%; margin:0 auto;}
+.view{display:none; animation:fadeUp .5s ease;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+.view-header{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:26px; gap:16px; flex-wrap:wrap;}
+.view-header .eyebrow{font-family:var(--font-mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--primary); margin-bottom:8px;}
+.view-header h2{font-size:26px; font-weight:800; letter-spacing:-.3px;}
+.view-header p{color:var(--text-2); font-size:13.5px; margin-top:4px;}
+
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:22px; box-shadow:var(--shadow); transition:transform .25s ease, border-color .25s ease;
+}
+.card:hover{border-color:rgba(59,130,246,.35);}
+
+/* KPI grid */
+.kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;}
+.kpi-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px;
+  position:relative; overflow:hidden; box-shadow:var(--shadow); transition:transform .25s ease;
+}
+.kpi-card:hover{transform:translateY(-4px);}
+.kpi-icon{width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; font-size:15px;}
+.kpi-card .kpi-value{font-size:30px; font-weight:800; font-family:var(--font-mono); letter-spacing:-.5px;}
+.kpi-card .kpi-label{font-size:12px; color:var(--text-2); margin-top:4px; font-weight:600;}
+.kpi-card .kpi-trend{position:absolute; top:20px; right:18px; font-size:10.5px; font-family:var(--font-mono); padding:3px 8px; border-radius:20px; background:rgba(34,197,94,.12); color:var(--success);}
+
+.grid-2{display:grid; grid-template-columns:1.3fr 1fr; gap:16px;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+.section-title{font-size:15px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:9px;}
+.section-title i{color:var(--primary); font-size:13px;}
+
+/* Architecture flow */
+.flow{display:flex; flex-direction:column; gap:0; align-items:center; padding:20px 0;}
+.flow-node{
+  width:100%; max-width:460px; background:var(--surface-2); border:1px solid var(--border); border-radius:14px;
+  padding:16px 22px; text-align:center; font-weight:700; font-size:14.5px; position:relative;
+  opacity:0; transform:translateY(14px); transition:all .5s ease;
+}
+.flow-node.show{opacity:1; transform:translateY(0);}
+.flow-node .fn-sub{display:block; font-size:11px; color:var(--text-2); font-weight:500; margin-top:4px; font-family:var(--font-mono);}
+.flow-arrow{color:var(--primary); font-size:16px; padding:6px 0;}
+.flow-node.n0{border-color:rgba(59,130,246,.5); background:var(--primary-soft);}
+.flow-node.n5{border-color:rgba(34,197,94,.5); background:rgba(34,197,94,.1);}
+
+/* Competency cards */
+.comp-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px;
+  transition:all .3s ease; cursor:default; position:relative; overflow:hidden;
+}
+.comp-card::after{content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(59,130,246,.08),transparent 60%); opacity:0; transition:opacity .3s;}
+.comp-card:hover{transform:translateY(-5px); box-shadow:var(--shadow); border-color:rgba(59,130,246,.4);}
+.comp-card:hover::after{opacity:1;}
+.comp-icon{width:42px; height:42px; border-radius:11px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:17px; margin-bottom:14px;}
+.comp-card h4{font-size:15px; font-weight:800; margin-bottom:6px;}
+.comp-card p{font-size:12.8px; color:var(--text-2); line-height:1.55;}
+.comp-levels{display:flex; gap:5px; margin-top:14px;}
+.lv-pip{flex:1; height:5px; border-radius:3px; background:var(--border);}
+
+/* Accordion */
+.accordion-item{background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden;}
+.accordion-head{display:flex; align-items:center; justify-content:space-between; padding:18px 20px; cursor:pointer; gap:14px;}
+.accordion-head:hover{background:var(--surface-2);}
+.accordion-head .ah-left{display:flex; align-items:center; gap:14px;}
+.role-tag{width:40px; height:40px; border-radius:11px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:16px;}
+.accordion-head h4{font-size:15px; font-weight:800;}
+.accordion-head span{font-size:12px; color:var(--text-2);}
+.accordion-head i.chev{transition:transform .3s; color:var(--text-2);}
+.accordion-item.open .chev{transform:rotate(180deg);}
+.accordion-body{max-height:0; overflow:hidden; transition:max-height .4s ease;}
+.accordion-inner{padding:0 20px 20px; display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px;}
+.mini-comp{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:14px;}
+.mini-comp .mc-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+.mini-comp h5{font-size:13px; font-weight:700;}
+.lvl-chip{font-family:var(--font-mono); font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; color:#fff;}
+
+/* Role explorer */
+.role-tabs{display:flex; gap:8px; margin-bottom:22px; flex-wrap:wrap;}
+.role-tab{
+  padding:10px 18px; border-radius:11px; border:1px solid var(--border); background:var(--surface);
+  color:var(--text-2); font-weight:700; font-size:13px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:9px;
+}
+.role-tab:hover{color:var(--text);}
+.role-tab.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+.role-hero{padding:22px; border-radius:16px; background:linear-gradient(135deg,var(--surface-2),var(--surface)); border:1px solid var(--border); margin-bottom:22px;}
+.role-hero h3{font-size:20px; font-weight:800; margin-bottom:6px;}
+.role-hero p{color:var(--text-2); font-size:13.5px;}
+.role-stats{display:flex; gap:26px; margin-top:16px;}
+.role-stats div span{display:block; font-family:var(--font-mono); font-size:20px; font-weight:800; color:var(--primary);}
+.role-stats div small{color:var(--text-2); font-size:11px;}
+
+/* Matrix */
+.matrix-controls{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
+.chip-btn{padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:var(--surface); color:var(--text-2); font-size:12.5px; font-weight:700; cursor:pointer; transition:all .2s;}
+.chip-btn.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+.matrix-wrap{overflow-x:auto; border-radius:14px; border:1px solid var(--border);}
+table.matrix{width:100%; border-collapse:collapse; min-width:600px;}
+table.matrix th, table.matrix td{padding:13px 16px; text-align:left; font-size:12.8px; border-bottom:1px solid var(--border);}
+table.matrix thead th{background:var(--surface-2); font-weight:700; color:var(--text-2); text-transform:uppercase; font-size:10.5px; letter-spacing:.6px; position:sticky; top:0;}
+table.matrix tbody tr{transition:background .2s;}
+table.matrix tbody tr:hover{background:var(--surface-2);}
+table.matrix td:first-child{font-weight:700;}
+.level-cell{display:flex; justify-content:center;}
+.level-badge{
+  width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-weight:800; font-size:13px; color:#fff; cursor:pointer; transition:transform .2s;
+}
+.level-badge:hover{transform:scale(1.15);}
+.legend{display:flex; gap:16px; flex-wrap:wrap; margin-top:16px;}
+.legend div{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-2);}
+.legend span{width:12px; height:12px; border-radius:4px; display:inline-block;}
+
+/* Charts */
+.chart-card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow:var(--shadow);}
+.chart-card h4{font-size:14px; font-weight:800; margin-bottom:14px;}
+.chart-box{position:relative; height:260px;}
+
+/* Stats counters */
+.stat-hero{display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-bottom:26px;}
+.stat-hero .card{text-align:center; padding:26px 12px;}
+.stat-hero .stat-num{font-size:36px; font-weight:800; font-family:var(--font-mono); background:linear-gradient(135deg,var(--primary),#22D3EE); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.stat-hero .stat-lbl{font-size:12px; color:var(--text-2); margin-top:6px; font-weight:600;}
+
+/* Level detail cards */
+.level-tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+.level-tab{width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; font-family:var(--font-mono); color:#fff; opacity:.45; cursor:pointer; transition:all .2s; border:2px solid transparent;}
+.level-tab.active{opacity:1; border-color:var(--text);}
+.level-detail{background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:20px;}
+.level-detail h5{font-size:15px; font-weight:800; margin-bottom:8px;}
+.level-detail .ld-summary{font-size:13px; color:var(--text-2); margin-bottom:14px; line-height:1.6;}
+.level-detail ul{list-style:none; display:flex; flex-direction:column; gap:9px;}
+.level-detail li{font-size:12.8px; line-height:1.5; padding-left:20px; position:relative; color:var(--text);}
+.level-detail li::before{content:'\f00c'; font-family:'Font Awesome 6 Free'; font-weight:900; font-size:9px; color:var(--success); position:absolute; left:0; top:4px;}
+
+.footer-note{text-align:center; color:var(--text-3); font-size:11.5px; margin-top:50px; padding-top:20px; border-top:1px solid var(--border); font-family:var(--font-mono);}
+
+@media (max-width:1100px){
+  .kpi-grid, .grid-4{grid-template-columns:repeat(2,1fr);}
+  .grid-2, .grid-3{grid-template-columns:1fr;}
+  .stat-hero{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{
+    position:fixed; left:0; top:0; width:270px; transform:translateX(-100%); box-shadow:0 0 40px rgba(0,0,0,.5);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-close{display:flex; align-items:center; justify-content:center; width:30px;height:30px;border-radius:8px;background:var(--surface-2);color:var(--text-2);margin-left:auto;cursor:pointer;}
+  .menu-toggle{display:flex;}
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:45; display:none;}
+  .overlay.show{display:block;}
+  .content{padding:22px 16px 60px;}
+  .topbar{padding:12px 16px;}
+  .date-chip{display:none;}
+}
+@media (max-width:640px){
+  .kpi-grid, .grid-4, .stat-hero{grid-template-columns:repeat(2,1fr);}
+  .search-wrap{max-width:none;}
+  .view-header h2{font-size:21px;}
+}
+</style>
+</head>
+<body data-theme="dark">
+<div class="overlay" id="overlay"></div>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div style="display:flex;align-items:center;">
+      <div class="brand">
+        <div class="brand-mark">BV</div>
+        <div class="brand-text"><h1>Bevatel</h1><span>Competency Intelligence</span></div>
+      </div>
+      <div class="sidebar-close" id="sidebarClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+
+    <nav class="nav-group">
+      <div class="nav-label">Dashboard</div>
+      <div class="nav-item active" data-view="overview"><i class="fa-solid fa-gauge-high"></i>Overview</div>
+      <div class="nav-item" data-view="architecture"><i class="fa-solid fa-diagram-project"></i>Framework Architecture</div>
+    </nav>
+    <nav class="nav-group">
+      <div class="nav-label">Competencies</div>
+      <div class="nav-item" data-view="core"><i class="fa-solid fa-star"></i>Core Competencies</div>
+      <div class="nav-item" data-view="functional"><i class="fa-solid fa-layer-group"></i>Functional Competencies</div>
+      <div class="nav-item" data-view="leadership"><i class="fa-solid fa-chess-king"></i>Leadership Competencies</div>
+      <div class="nav-item" data-view="matrix"><i class="fa-solid fa-table-cells"></i>Competency Matrix</div>
+    </nav>
+    <nav class="nav-group">
+      <div class="nav-label">Explore</div>
+      <div class="nav-item" data-view="roles"><i class="fa-solid fa-users-gear"></i>Role Explorer</div>
+      <div class="nav-item" data-view="analytics"><i class="fa-solid fa-chart-pie"></i>Analytics</div>
+      <div class="nav-item" data-view="statistics"><i class="fa-solid fa-hashtag"></i>Statistics</div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Prepared by</strong>
+      <p>Omar Fouad<br>Competency Framework & Competency Matrix</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="icon-btn menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></div>
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="globalSearch" placeholder="Search competencies, roles, indicators…">
+      </div>
+      <div class="top-actions">
+        <div class="date-chip" id="dateChip"></div>
+        <div class="icon-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></div>
+        <div class="icon-btn"><i class="fa-solid fa-bell"></i><span class="badge-dot"></span></div>
+        <div class="profile"><div class="avatar">OF</div><span>Omar Fouad</span></div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- OVERVIEW -->
+      <section class="view active" id="view-overview">
+        <div class="view-header">
+          <div><div class="eyebrow">Executive Summary</div><h2>Bevatel Competency Framework</h2><p>A unified capability model connecting business strategy to individual performance.</p></div>
+        </div>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="chart-card">
+            <h4><i class="fa-solid fa-diagram-project" style="color:var(--primary);margin-right:6px;"></i>Competency Distribution</h4>
+            <div class="chart-box"><canvas id="chartOverviewDoughnut"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h4><i class="fa-solid fa-layer-group" style="color:var(--primary);margin-right:6px;"></i>Average Required Level by Role</h4>
+            <div class="chart-box"><canvas id="chartOverviewBar"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title"><i class="fa-solid fa-bullseye"></i>Selected Job Roles</div>
+          <div class="grid-4" id="overviewRoles"></div>
+        </div>
+      </section>
+
+      <!-- ARCHITECTURE -->
+      <section class="view" id="view-architecture">
+        <div class="view-header">
+          <div><div class="eyebrow">05 — Framework Architecture</div><h2>From Business Strategy to Performance Measurement</h2><p>Bevatel is a SaaS, CRM, CCaaS, and AI company that needs a workforce capable of selling, delivering, and supporting customer outcomes.</p></div>
+        </div>
+        <div class="card">
+          <div class="flow" id="flowContainer"></div>
+        </div>
+        <div class="grid-3" style="margin-top:16px;">
+          <div class="card"><div class="section-title"><i class="fa-solid fa-circle-question"></i>Why a Framework?</div><p style="font-size:13px;color:var(--text-2);line-height:1.7;">A competency framework turns strategy into observable capabilities that can be recruited, developed, measured, and rewarded.</p></div>
+          <div class="card"><div class="section-title"><i class="fa-solid fa-people-group"></i>About Bevatel</div><p style="font-size:13px;color:var(--text-2);line-height:1.7;">Bevatel is a SaaS and customer experience technology company delivering CCaaS, CRM, and AI-powered solutions, operating in a fast-moving market that requires strong employee capabilities.</p></div>
+          <div class="card"><div class="section-title"><i class="fa-solid fa-flag"></i>Strategic Priorities</div><ul style="font-size:12.8px;color:var(--text-2);line-height:2;list-style:none;">
+            <li><i class="fa-solid fa-check" style="color:var(--success);margin-right:8px;"></i>Customer satisfaction</li>
+            <li><i class="fa-solid fa-check" style="color:var(--success);margin-right:8px;"></i>Operational excellence</li>
+            <li><i class="fa-solid fa-check" style="color:var(--success);margin-right:8px;"></i>Team collaboration</li>
+            <li><i class="fa-solid fa-check" style="color:var(--success);margin-right:8px;"></i>Business growth</li>
+            <li><i class="fa-solid fa-check" style="color:var(--success);margin-right:8px;"></i>Digital innovation</li>
+          </ul></div>
+        </div>
+      </section>
+
+      <!-- CORE -->
+      <section class="view" id="view-core">
+        <div class="view-header">
+          <div><div class="eyebrow">06 — Core Competencies</div><h2>Company-Wide Competencies</h2><p>Shared across all roles — required proficiency varies by position.</p></div>
+        </div>
+        <div class="grid-3" id="coreGrid" style="grid-template-columns:repeat(3,1fr);"></div>
+      </section>
+
+      <!-- FUNCTIONAL -->
+      <section class="view" id="view-functional">
+        <div class="view-header">
+          <div><div class="eyebrow">07 — Functional Competencies</div><h2>Role-Specific Capabilities</h2><p>Grouped by function — click a role to expand its competency set and required levels.</p></div>
+        </div>
+        <div id="accordionWrap"></div>
+      </section>
+
+      <!-- LEADERSHIP -->
+      <section class="view" id="view-leadership">
+        <div class="view-header">
+          <div><div class="eyebrow">Leadership Competencies</div><h2>Applicable to Sales Manager & Project Manager</h2><p>Leadership capabilities required for people and results accountability.</p></div>
+        </div>
+        <div class="grid-3" id="leadershipGrid" style="margin-bottom:18px;"></div>
+        <div class="card">
+          <div class="section-title"><i class="fa-solid fa-table"></i>Leadership Competency Matrix</div>
+          <div class="matrix-wrap"><table class="matrix" id="leadershipMatrixTable"></table></div>
+          <div class="legend" id="legendLeadership"></div>
+        </div>
+      </section>
+
+      <!-- MATRIX -->
+      <section class="view" id="view-matrix">
+        <div class="view-header">
+          <div><div class="eyebrow">Competency Matrix</div><h2>Interactive Proficiency Matrix</h2><p>Levels reflect proficiency required per role: 1 = Awareness, 5 = Expert / Strategic.</p></div>
+        </div>
+        <div class="matrix-controls" id="matrixTabs"></div>
+        <div class="card">
+          <div class="matrix-wrap"><table class="matrix" id="matrixTable"></table></div>
+          <div class="legend" id="legendMain"></div>
+        </div>
+      </section>
+
+      <!-- ROLES -->
+      <section class="view" id="view-roles">
+        <div class="view-header">
+          <div><div class="eyebrow">Role Explorer</div><h2>Explore by Job Role</h2><p>Core and functional competencies, required levels, and behavioral indicators per role.</p></div>
+        </div>
+        <div class="role-tabs" id="roleTabs"></div>
+        <div class="role-hero" id="roleHero"></div>
+        <div class="section-title"><i class="fa-solid fa-star"></i>Core Competencies — Required Levels</div>
+        <div class="grid-3" id="roleCoreGrid" style="margin-bottom:24px;"></div>
+        <div class="section-title"><i class="fa-solid fa-layer-group"></i>Functional Competencies</div>
+        <div id="roleFunctionalWrap"></div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section class="view" id="view-analytics">
+        <div class="view-header">
+          <div><div class="eyebrow">Analytics</div><h2>Framework Analytics</h2><p>Visual comparison of competency levels, distribution, and role requirements.</p></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="chart-card"><h4>Core Competency Radar — by Role</h4><div class="chart-box"><canvas id="chartRadar"></canvas></div></div>
+          <div class="chart-card"><h4>Functional Competency Levels — by Role</h4><div class="chart-box"><canvas id="chartBarFunctional"></canvas></div></div>
+        </div>
+        <div class="grid-3">
+          <div class="chart-card"><h4>Level Distribution</h4><div class="chart-box"><canvas id="chartLevelDist"></canvas></div></div>
+          <div class="chart-card"><h4>Competency Type Split</h4><div class="chart-box"><canvas id="chartPieType"></canvas></div></div>
+          <div class="chart-card"><h4>Avg Level by Role (Horizontal)</h4><div class="chart-box"><canvas id="chartHBar"></canvas></div></div>
+        </div>
+      </section>
+
+      <!-- STATISTICS -->
+      <section class="view" id="view-statistics">
+        <div class="view-header">
+          <div><div class="eyebrow">Statistics</div><h2>Framework at a Glance</h2><p>Key figures behind the Bevatel Competency Framework.</p></div>
+        </div>
+        <div class="stat-hero" id="statHero"></div>
+        <div class="grid-2">
+          <div class="chart-card"><h4>Functional Competencies per Role</h4><div class="chart-box"><canvas id="chartStatsBar"></canvas></div></div>
+          <div class="chart-card"><h4>Overall Competency Composition</h4><div class="chart-box"><canvas id="chartStatsDoughnut"></canvas></div></div>
+        </div>
+      </section>
+
+      <div class="footer-note">BEVATEL COMPETENCY FRAMEWORK — CONFIDENTIAL — PREPARED BY OMAR FOUAD</div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================= DATA (source of truth: Bevatel Competency Framework.pptx) ============================= */
+const LEVEL_COLOR = ['','#64748B','#3B82F6','#22C55E','#F59E0B','#EF4444'];
+const LEVEL_NAMES = ['','Awareness','Basic Application','Proficient','Advanced','Expert / Strategic'];
+
+const ROLES = [
+  {id:'sales-manager', name:'Sales Manager', icon:'fa-chart-line', tagline:'Drives enterprise growth and revenue conversion.'},
+  {id:'csr', name:'Customer Service Representative', icon:'fa-headset', tagline:'Ensures service quality and customer satisfaction.'},
+  {id:'project-manager', name:'Project Manager', icon:'fa-diagram-project', tagline:'Delivers implementations on time, in scope, and in quality.'},
+  {id:'marketing-specialist', name:'Marketing Specialist', icon:'fa-bullhorn', tagline:'Creates demand and strengthens market presence.'}
+];
+
+const CORE = [
+  {name:'Customer Focus', desc:'Understands customer needs and delivers value.', icon:'fa-bullseye'},
+  {name:'Effective Communication', desc:'Shares information clearly and professionally.', icon:'fa-comments'},
+  {name:'Collaboration', desc:'Works effectively across teams and functions.', icon:'fa-people-arrows'},
+  {name:'Accountability', desc:'Owns commitments and delivers outcomes.', icon:'fa-shield-halved'},
+  {name:'Adaptability', desc:'Responds positively to change and priorities.', icon:'fa-arrows-spin'},
+  {name:'Continuous Improvement', desc:'Improves quality, efficiency, and performance.', icon:'fa-chart-line'}
+];
+
+const CORE_MATRIX = {
+  roles:['Sales Manager','Customer Service Representative','Project Manager','Marketing Specialist'],
+  rows:[
+    {name:'Customer Focus', levels:[5,5,4,4]},
+    {name:'Effective Communication', levels:[5,5,5,5]},
+    {name:'Collaboration', levels:[4,4,5,4]},
+    {name:'Accountability', levels:[5,4,5,4]},
+    {name:'Adaptability', levels:[4,4,5,5]},
+    {name:'Continuous Improvement', levels:[4,3,5,4]}
+  ]
+};
+
+const LEADERSHIP = {
+  competencies:[
+    {name:'Strategic Thinking', desc:'Aligns team priorities with long-term business goals.', icon:'fa-chess-knight'},
+    {name:'Decision Making', desc:'Makes timely and evidence-based decisions.', icon:'fa-scale-balanced'},
+    {name:'People Development', desc:'Coaches and develops employees for growth.', icon:'fa-seedling'},
+    {name:'Change Leadership', desc:'Leads teams effectively through change.', icon:'fa-arrows-turn-right'},
+    {name:'Results Leadership', desc:'Drives accountability and performance through others.', icon:'fa-trophy'}
+  ],
+  roles:['Sales Manager','Project Manager'],
+  matrix:[
+    {name:'Strategic Thinking', levels:[5,5]},
+    {name:'Decision Making', levels:[5,5]},
+    {name:'People Development', levels:[4,4]},
+    {name:'Change Leadership', levels:[4,5]},
+    {name:'Results Leadership', levels:[5,4]}
+  ]
+};
+
+function L(title, summary, indicators){ return {title, summary, indicators}; }
+
+const FUNCTIONAL = {
+  'sales-manager':[
+    {name:'Consultative Selling', level:5, levels:[
+      L('Awareness','Understands the principles of consultative selling and follows structured sales guidance.',["Demonstrates a basic understanding of Bevatel's products, services, and value proposition.","Identifies basic customer requirements through active listening and questioning.","Follows the organization's standard sales process with guidance from senior team members.","Presents products using approved sales materials and messaging.","Recognizes when additional support is required during customer discussions."]),
+      L('Basic Application','Applies consultative selling techniques in routine sales situations with limited supervision.',["Conducts structured discovery meetings to identify customer pain points.","Matches standard Bevatel solutions to customer business needs.","Handles common customer objections using approved sales approaches.","Builds rapport and maintains professional relationships throughout the sales cycle.","Coordinates with technical or presales teams when customer requirements become more complex."]),
+      L('Proficient','Independently manages consultative sales engagements and develops value-driven solutions.',["Performs in-depth needs analysis to uncover business challenges and opportunities.","Designs solution recommendations aligned with customer operational objectives.","Demonstrates the business value and ROI of proposed solutions during presentations.","Adapts sales strategies based on customer industry, priorities, and decision-making process.","Builds long-term customer relationships that support repeat business and account growth."]),
+      L('Advanced','Leads complex consultative sales opportunities while coaching others and improving sales effectiveness.',["Develops customized solution strategies for enterprise and strategic accounts.","Coaches sales team members on advanced consultative selling techniques.","Collaborates with cross-functional teams to deliver integrated customer solutions.","Anticipates customer business risks and proactively proposes value-added recommendations.","Continuously improves sales practices by sharing successful approaches and lessons learned."]),
+      L('Expert / Strategic','Shapes the organization\'s consultative selling strategy and drives long-term business growth.',["Defines consultative selling standards and best practices across the sales organization.","Leads high-value strategic customer engagements with executive stakeholders.","Influences product and service development through customer and market insights.","Establishes long-term partnership strategies that maximize customer lifetime value.","Mentors sales leaders and drives a culture of solution-oriented selling across the organization."])
+    ]},
+    {name:'Opportunity Management', level:5, levels:[
+      L('Awareness','Understands the principles of opportunity management and follows the organization\'s sales opportunity process.',["Demonstrates a basic understanding of the organization's sales opportunity lifecycle.","Identifies customer opportunities and records essential information accurately in the CRM system.","Follows the standard opportunity qualification process with guidance from senior team members.","Recognizes the importance of maintaining accurate pipeline information throughout the sales cycle.","Escalates complex opportunities to the appropriate stakeholders when additional support is required."]),
+      L('Basic Application','Applies opportunity management techniques in routine sales situations with limited supervision.',["Qualifies sales opportunities using the organization's approved qualification methodology.","Maintains accurate opportunity records, customer interactions, and sales activities within the CRM system.","Prioritizes opportunities based on customer needs, business value, and sales potential.","Coordinates with internal departments to progress opportunities through each sales stage.","Follows up with customers consistently to maintain opportunity momentum and engagement."]),
+      L('Proficient','Independently manages multiple sales opportunities while maximizing pipeline quality and conversion rates.',["Manages multiple sales opportunities across different pipeline stages simultaneously.","Develops structured opportunity plans aligned with customer business objectives.","Identifies potential risks that may delay or prevent successful opportunity progression.","Maintains accurate sales forecasts based on opportunity status and customer commitment.","Improves opportunity conversion by proactively managing customer expectations and next steps."]),
+      L('Advanced','Leads complex sales opportunities while improving pipeline performance and coaching other team members.',["Develops comprehensive opportunity strategies for enterprise and strategic customer accounts.","Coordinates cross-functional teams to successfully progress complex sales opportunities.","Anticipates competitive threats and develops mitigation strategies throughout the sales cycle.","Coaches sales team members on advanced opportunity qualification and pipeline management practices.","Conducts opportunity review sessions to improve overall sales execution and forecasting accuracy."]),
+      L('Expert / Strategic','Shapes the organization\'s opportunity management strategy and drives sustainable revenue growth.',["Establishes opportunity management standards and governance across the sales organization.","Develops strategic pipeline management initiatives aligned with organizational growth objectives.","Improves forecasting methodologies to enhance business planning and revenue predictability.","Influences sales strategy through opportunity analytics, market intelligence, and performance insights.","Builds a high-performance sales culture focused on disciplined opportunity management and continuous improvement."])
+    ]},
+    {name:'Commercial Negotiation', level:5, levels:[
+      L('Awareness','Understands the fundamentals of commercial negotiation and follows approved negotiation guidelines.',["Demonstrates a basic understanding of commercial negotiation principles and pricing structures.","Recognizes customer objections and responds using approved organizational practices.","Follows established pricing policies and escalation procedures during negotiations.","Identifies situations requiring management approval before making commercial commitments.","Maintains professional communication throughout customer negotiation discussions."]),
+      L('Basic Application','Applies commercial negotiation techniques in routine customer discussions with limited supervision.',["Conducts routine commercial negotiations while protecting organizational pricing policies.","Responds to standard customer objections using value-based negotiation techniques.","Balances customer expectations with organizational commercial objectives.","Coordinates with management when negotiations exceed delegated authority.","Documents negotiation outcomes accurately for future reference and follow-up."]),
+      L('Proficient','Independently negotiates commercial agreements while protecting profitability and customer satisfaction.',["Develops negotiation strategies based on customer priorities and business objectives.","Justifies pricing decisions using business value rather than product features alone.","Negotiates mutually beneficial agreements while maintaining organizational profitability.","Manages negotiation risks and identifies alternative commercial solutions.","Builds customer confidence through professional communication and ethical negotiation practices."]),
+      L('Advanced','Leads complex commercial negotiations involving strategic customers and high-value business opportunities.',["Develops customized negotiation strategies for enterprise and strategic customer accounts.","Leads multi-party negotiations involving technical, financial, and executive stakeholders.","Anticipates negotiation challenges and prepares contingency plans before customer discussions.","Coaches sales team members on advanced negotiation techniques and commercial decision-making.","Supports organizational profitability by balancing customer value with commercial objectives."]),
+      L('Expert / Strategic','Defines the organization\'s commercial negotiation strategy and influences high-value business agreements.',["Establishes commercial negotiation standards and governance across the sales organization.","Leads executive-level negotiations involving strategic partnerships and major business opportunities.","Influences commercial policies through market intelligence and competitive analysis.","Develops negotiation capabilities across the sales organization through coaching and mentoring.","Drives sustainable revenue growth by creating long-term commercial partnerships."])
+    ]},
+    {name:'Strategic Account Management', level:5, levels:[
+      L('Awareness','Understands the principles of strategic account management and follows structured account management practices.',["Demonstrates a basic understanding of strategic account management principles and customer relationship development.","Maintains accurate customer information, account profiles, and communication records within the CRM system.","Follows established account management plans under the guidance of senior sales team members.","Recognizes customer requirements and identifies opportunities to strengthen existing relationships.","Escalates customer concerns appropriately when additional support or expertise is required."]),
+      L('Basic Application','Applies strategic account management techniques in routine customer interactions with limited supervision.',["Builds professional relationships with key customer contacts through regular communication and follow-up.","Maintains account plans that align with customer business objectives and organizational priorities.","Coordinates with internal departments to ensure customer commitments are delivered successfully.","Identifies opportunities for account expansion through cross-selling and upselling activities.","Monitors customer satisfaction and resolves routine account issues in a timely manner."]),
+      L('Proficient','Independently manages strategic customer accounts while driving account growth and customer retention.',["Develops comprehensive account plans that support long-term customer success and business growth.","Builds trusted relationships with multiple stakeholders across customer organizations.","Identifies business opportunities through continuous analysis of customer challenges and objectives.","Collaborates with cross-functional teams to deliver integrated customer solutions.","Strengthens customer loyalty through proactive engagement and value-driven account management."]),
+      L('Advanced','Leads strategic customer accounts while improving customer partnerships and developing account management capabilities.',["Develops long-term account growth strategies for enterprise and strategic customers.","Builds executive-level relationships that strengthen customer engagement and business partnerships.","Anticipates customer risks and develops proactive retention strategies before issues arise.","Coaches account managers on advanced account planning and relationship management techniques.","Coordinates organization-wide resources to maximize customer value and long-term retention."]),
+      L('Expert / Strategic','Shapes the organization\'s strategic account management approach and drives sustainable customer growth.',["Establishes strategic account management standards and governance across the sales organization.","Develops long-term customer partnership strategies aligned with organizational business objectives.","Influences business growth through executive customer relationships and strategic market insights.","Builds organizational capability by mentoring sales leaders and developing account management best practices.","Drives continuous improvement through customer feedback, market intelligence, and strategic performance analysis."])
+    ]},
+    {name:'Solution Selling', level:4, levels:[
+      L('Awareness','Understands the principles of solution selling and follows structured customer engagement practices.',["Demonstrates a basic understanding of Bevatel's products, services, and integrated business solutions.","Identifies customer business requirements through active listening and structured questioning.","Follows the organization's solution selling methodology with guidance from senior sales team members.","Recognizes the relationship between customer challenges and appropriate business solutions.","Escalates technical or complex customer requirements to pre-sales or technical specialists."]),
+      L('Basic Application','Applies solution selling techniques in routine sales situations with limited supervision.',["Conducts structured discovery meetings to understand customer operational challenges.","Recommends standard Bevatel solutions based on customer business requirements.","Explains solution features by focusing on customer business value rather than product specifications.","Collaborates with technical and pre-sales teams to validate proposed customer solutions.","Responds to routine customer questions while maintaining a value-based sales approach."]),
+      L('Proficient','Independently develops customer-focused solutions that deliver measurable business value.',["Performs comprehensive business needs analysis to identify customer improvement opportunities.","Designs integrated solution recommendations aligned with customer operational objectives.","Demonstrates business value and return on investment throughout customer presentations.","Adapts solution recommendations according to customer industry, priorities, and strategic goals.","Builds long-term customer confidence through value-driven solution discussions."]),
+      L('Advanced','Leads complex solution selling engagements while coaching others and improving organizational sales capability.',["Develops customized solution strategies for enterprise and strategic customer opportunities.","Leads cross-functional teams to deliver integrated customer solutions.","Anticipates customer business risks and recommends proactive value-added solutions.","Coaches sales professionals on advanced solution selling methodologies and customer engagement techniques.","Improves organizational sales effectiveness by sharing successful solution-selling practices."]),
+      L('Expert / Strategic','Shapes the organization\'s solution selling strategy and drives long-term business transformation.',["Establishes solution selling standards and best practices across the sales organization.","Leads executive-level customer engagements focused on long-term strategic partnerships.","Influences product and service innovation through customer insights and market intelligence.","Develops organizational capabilities by mentoring sales leaders and promoting solution-oriented thinking.","Drives sustainable business growth by embedding solution selling into the organization's sales culture."])
+    ]}
+  ],
+  'csr':[
+    {name:'Customer Issue Resolution', level:5, levels:[
+      L('Awareness','Understands the principles of customer issue resolution and follows established service procedures.',["Demonstrates a basic understanding of Bevatel's products, services, and customer support processes.","Identifies customer inquiries accurately through active listening and effective questioning.","Follows established troubleshooting procedures under the guidance of senior team members.","Documents customer interactions accurately within the customer relationship management system.","Recognizes situations requiring escalation to technical support or senior specialists."]),
+      L('Basic Application','Applies customer issue resolution techniques in routine service situations with limited supervision.',["Resolves common customer issues by following approved troubleshooting procedures.","Prioritizes customer requests according to service level agreements and business priorities.","Communicates resolution progress clearly while managing customer expectations professionally.","Collaborates with technical teams when customer issues require additional investigation.","Ensures all customer interactions are documented accurately and completely."]),
+      L('Proficient','Independently resolves customer issues while maintaining high levels of customer satisfaction.',["Investigates complex customer issues using structured troubleshooting methodologies.","Identifies the root cause of recurring customer problems before recommending solutions.","Coordinates with multiple departments to achieve timely issue resolution.","Balances customer expectations with operational capabilities and organizational policies.","Continuously improves resolution quality by applying previous experience and customer feedback."]),
+      L('Advanced','Leads complex customer issue resolution while coaching others and improving service performance.',["Resolves high-impact customer issues involving multiple products or business functions.","Coordinates cross-functional teams to achieve timely and effective customer resolutions.","Coaches customer service representatives on advanced troubleshooting and resolution techniques.","Identifies recurring service issues and recommends process improvements.","Improves operational efficiency by sharing best practices across the customer service team."]),
+      L('Expert / Strategic','Shapes the organization\'s customer issue resolution strategy and drives continuous service excellence.',["Establishes customer issue resolution standards and service quality expectations.","Develops organization-wide strategies to reduce recurring customer issues.","Influences customer support processes through operational analysis and performance insights.","Builds organizational capability by mentoring customer service leaders and specialists.","Drives continuous service improvement through customer feedback, analytics, and operational excellence."])
+    ]},
+    {name:'Service Recovery', level:5, levels:[
+      L('Awareness','Understands the purpose of service recovery and follows the basic service recovery process.',["Demonstrates a basic understanding of service recovery principles and customer expectations.","Recognizes when a customer has experienced a service failure or dissatisfaction.","Follows the organization's service recovery guidelines under supervision.","Uses calm and professional communication when responding to customer complaints.","Escalates situations that require additional support or authority."]),
+      L('Basic Application','Applies service recovery techniques in routine customer service situations with limited supervision.',["Responds to customer dissatisfaction using approved service recovery approaches.","Offers simple corrective actions within organizational guidelines.","Communicates service recovery steps clearly and professionally.","Coordinates with internal teams when additional action is needed.","Documents service recovery cases accurately and completely."]),
+      L('Proficient','Independently restores customer confidence after service failures and improves customer satisfaction.',["Handles service recovery cases independently.","Identifies root causes before recommending corrective actions.","Balances customer satisfaction with business policy.","Rebuilds customer trust through follow-up.","Uses previous cases to improve future outcomes."]),
+      L('Advanced','Leads complex service recovery cases while coaching others and improving recovery performance.',["Manages high-impact recovery cases.","Coordinates cross-functional support.","Coaches team members.","Recommends process improvements.","Shares recovery best practices."]),
+      L('Expert / Strategic','Shapes the organization\'s service recovery strategy and drives long-term customer confidence.',["Establishes recovery standards.","Develops organization-wide recovery strategies.","Influences service policies.","Mentors service leaders.","Drives continuous improvement."])
+    ]},
+    {name:'Problem Diagnosis', level:5, levels:[
+      L('Awareness','Understands the principles of problem diagnosis and follows established troubleshooting procedures.',["Demonstrates a basic understanding of common customer issues and their potential causes.","Collects relevant information from customers using structured questioning techniques.","Follows approved diagnostic procedures under the guidance of senior team members.","Accurately records customer symptoms and diagnostic findings in the system.","Escalates issues that require advanced technical investigation."]),
+      L('Basic Application','Applies problem diagnosis techniques in routine customer support situations with limited supervision.',["Investigates customer issues using standard troubleshooting methodologies.","Identifies likely causes of common technical and service-related problems.","Eliminates possible causes through systematic analysis and testing.","Collaborates with technical support teams to validate diagnostic findings.","Documents diagnostic activities and recommended actions accurately."]),
+      L('Proficient','Independently diagnoses complex customer problems while ensuring timely and accurate resolution.',["Performs detailed root cause analysis for recurring customer issues.","Uses analytical thinking to identify relationships between symptoms and underlying problems.","Prioritizes diagnostic activities based on business impact and customer urgency.","Recommends effective solutions based on diagnostic findings and business requirements.","Shares diagnostic knowledge with team members to improve overall service quality."]),
+      L('Advanced','Leads complex diagnostic activities while improving troubleshooting capabilities across the team.',["Diagnoses high-impact customer issues involving multiple products or integrated solutions.","Coordinates with cross-functional teams to identify root causes efficiently.","Coaches team members on advanced troubleshooting and diagnostic techniques.","Identifies recurring problem patterns and recommends preventive actions.","Improves diagnostic efficiency through process enhancements and knowledge sharing."]),
+      L('Expert / Strategic','Shapes the organization\'s problem diagnosis practices and drives operational excellence.',["Establishes diagnostic standards and best practices across the customer support function.","Develops methodologies that improve problem identification and resolution accuracy.","Influences service improvement initiatives through trend analysis and operational insights.","Builds organizational capability by mentoring technical specialists and service leaders.","Drives continuous improvement by reducing recurring issues and strengthening diagnostic effectiveness."])
+    ]},
+    {name:'Customer Relationship Management', level:4, levels:[
+      L('Awareness','Understands the importance of customer relationship management and follows established customer engagement practices.',["Demonstrates a basic understanding of customer relationship principles and organizational service standards.","Maintains professional and respectful communication during every customer interaction.","Updates customer information accurately within the CRM system.","Responds to customer requests in accordance with established procedures.","Escalates customer concerns when additional support is required."]),
+      L('Basic Application','Applies customer relationship management practices in routine service situations with limited supervision.',["Builds positive working relationships through timely and professional communication.","Maintains regular follow-up with customers to ensure service continuity.","Identifies opportunities to improve customer satisfaction during routine interactions.","Coordinates with internal departments to address customer requirements effectively.","Maintains accurate customer records and communication history."]),
+      L('Proficient','Independently manages customer relationships while strengthening customer loyalty and satisfaction.',["Develops trusted relationships with customers through consistent service excellence.","Anticipates customer needs by understanding their business objectives and challenges.","Resolves customer concerns proactively before they escalate into larger issues.","Promotes long-term customer engagement through value-driven communication.","Uses customer feedback to improve service quality and relationship effectiveness."]),
+      L('Advanced','Leads strategic customer relationships while coaching others and improving customer engagement practices.',["Manages relationships with high-value customers and key business stakeholders.","Coaches team members on effective relationship management and customer communication.","Identifies opportunities to strengthen customer retention and long-term engagement.","Collaborates across departments to deliver a consistent customer experience.","Improves customer relationship processes using performance data and customer feedback."]),
+      L('Expert / Strategic','Shapes the organization\'s customer relationship management strategy and strengthens long-term customer partnerships.',["Establishes customer relationship management standards across the organization.","Develops initiatives that improve customer loyalty, retention, and lifetime value.","Influences business decisions through customer insights and relationship analytics.","Builds organizational capability by mentoring customer service leaders.","Drives a customer-centric culture that supports sustainable business growth."])
+    ]},
+    {name:'Solution Advisory', level:4, levels:[
+      L('Awareness','Understands the organization\'s solutions and provides basic guidance based on established service procedures.',["Demonstrates a basic understanding of the organization's products, services, and available solutions.","Identifies customer requirements through active listening and structured questioning.","Provides accurate information using approved knowledge resources.","Refers complex solution requests to senior specialists when necessary.","Maintains accurate records of customer inquiries and recommendations."]),
+      L('Basic Application','Applies solution advisory techniques in routine customer interactions with limited supervision.',["Recommends appropriate products or services based on identified customer needs.","Explains solution features and benefits using customer-focused language.","Collaborates with technical teams to confirm solution suitability.","Responds to customer questions confidently while maintaining service quality.","Ensures proposed solutions align with organizational policies and customer expectations."]),
+      L('Proficient','Independently provides solution recommendations that deliver measurable customer value.',["Analyzes customer requirements before recommending appropriate solutions.","Matches business needs with the most suitable products and services.","Demonstrates the practical value of recommended solutions through clear business examples.","Anticipates customer concerns and addresses them proactively.","Builds customer confidence through professional consultation and accurate recommendations."]),
+      L('Advanced','Leads complex solution advisory engagements while improving advisory capabilities across the team.',["Provides expert guidance for customers with complex business requirements.","Coordinates with sales, technical, and implementation teams to deliver integrated solutions.","Coaches team members on advanced solution advisory techniques.","Identifies opportunities to enhance customer value through tailored recommendations.","Improves advisory effectiveness by sharing best practices and customer success stories."]),
+      L('Expert / Strategic','Shapes the organization\'s solution advisory strategy and drives long-term customer success.',["Establishes solution advisory standards and best practices across the organization.","Influences product and service improvements through customer feedback and market insights.","Develops advisory frameworks that enhance customer decision-making and business outcomes.","Builds organizational capability by mentoring customer-facing professionals.","Drives continuous innovation by promoting a consultative and customer-focused service culture."])
+    ]}
+  ],
+  'project-manager':[
+    {name:'Project Planning & Execution', level:5, levels:[
+      L('Awareness','Understands the fundamentals of project planning and execution while following established project management methodologies and organizational procedures.',["Demonstrates a basic understanding of the project lifecycle, key milestones, and project documentation.","Assists in developing project schedules, task lists, and implementation plans under supervision.","Maintains project documentation accurately according to organizational standards.","Monitors assigned project activities and reports progress to the project manager.","Escalates potential delays or execution challenges when they exceed assigned authority."]),
+      L('Basic Application','Applies project planning and execution practices to routine projects with limited supervision.',["Develops detailed work plans, timelines, and project schedules for assigned initiatives.","Coordinates day-to-day project activities to ensure planned milestones are achieved.","Tracks project progress and updates schedules based on actual performance.","Identifies execution issues early and recommends corrective actions.","Maintains project documentation and status reports that support effective project governance."]),
+      L('Proficient','Independently manages project planning and execution activities while delivering projects within agreed scope, schedule, and quality standards.',["Develops comprehensive project plans aligned with business objectives and customer expectations.","Coordinates cross-functional teams to execute project activities efficiently.","Balances competing priorities while maintaining project scope, quality, and timelines.","Monitors project performance using appropriate KPIs and project management tools.","Communicates project progress, risks, and recovery plans to stakeholders proactively."]),
+      L('Advanced','Leads complex project planning and execution initiatives while strengthening organizational project management capability.',["Manages multiple strategic projects with interdependent workstreams and competing priorities.","Optimizes project execution by improving planning methodologies and delivery processes.","Coaches project managers on advanced planning, scheduling, and execution practices.","Resolves complex execution challenges through effective decision-making and stakeholder alignment.","Promotes project management best practices across departments."]),
+      L('Expert / Strategic','Shapes the organization\'s project planning methodology and drives excellence in project delivery across the enterprise.',["Establishes enterprise project management standards, frameworks, and governance practices.","Develops strategic planning methodologies that improve organizational delivery performance.","Aligns project portfolios with long-term business strategy and organizational priorities.","Influences executive decision-making through portfolio analysis and delivery performance insights.","Builds organizational capability by mentoring project leaders and fostering a culture of delivery excellence."])
+    ]},
+    {name:'Stakeholder Management', level:5, levels:[
+      L('Awareness','Understands the importance of stakeholder management and follows established communication and engagement practices.',["Identifies key project stakeholders and understands their roles and expectations.","Maintains accurate stakeholder contact information and communication records.","Participates in stakeholder meetings and documents action items effectively.","Provides timely updates to stakeholders under the guidance of the project manager.","Escalates stakeholder concerns that require additional authority or intervention."]),
+      L('Basic Application','Applies stakeholder management practices in routine projects with limited supervision.',["Develops stakeholder communication plans aligned with project objectives.","Builds productive working relationships with project stakeholders.","Coordinates meetings and ensures stakeholder expectations are communicated clearly.","Responds professionally to stakeholder inquiries and feedback.","Maintains stakeholder engagement throughout project execution."]),
+      L('Proficient','Independently manages stakeholder relationships while maintaining alignment between business objectives and project delivery.',["Develops trust with internal and external stakeholders through proactive communication.","Balances competing stakeholder expectations using structured negotiation techniques.","Resolves stakeholder conflicts before they affect project performance.","Influences stakeholder decisions through data-driven recommendations.","Maintains stakeholder satisfaction throughout the project lifecycle."]),
+      L('Advanced','Leads stakeholder engagement across complex projects while strengthening stakeholder management capability throughout the organization.',["Develops executive engagement strategies that strengthen project sponsorship and organizational commitment.","Facilitates negotiations between business units, customers, vendors, and executive stakeholders to resolve competing priorities.","Coaches project managers on stakeholder analysis, communication planning, and conflict management techniques.","Anticipates stakeholder concerns and develops engagement strategies that minimize project resistance.","Establishes governance practices that improve stakeholder transparency, accountability, and decision-making."]),
+      L('Expert / Strategic','Shapes the organization\'s stakeholder management approach and builds strategic partnerships that enable successful project delivery.',["Establishes stakeholder governance standards and executive communication frameworks across the project portfolio.","Develops enterprise stakeholder engagement methodologies that improve organizational collaboration and project success.","Influences executive leadership through strategic communication, business alignment, and portfolio reporting.","Builds long-term partnerships with key customers and business leaders that support organizational objectives.","Develops stakeholder management capability across the organization through mentoring, coaching, and governance leadership."])
+    ]},
+    {name:'Risk & Issue Management', level:5, levels:[
+      L('Awareness','Understands project risk and issue management principles while following established organizational procedures.',["Identifies common project risks and implementation issues during routine project activities.","Maintains project risk registers, issue logs, and supporting documentation accurately.","Reports emerging risks and unresolved issues to the project manager promptly.","Follows organizational procedures for risk identification, escalation, and documentation.","Recognizes situations requiring immediate management intervention."]),
+      L('Basic Application','Applies structured risk and issue management techniques throughout routine project execution.',["Performs project risk assessments using approved organizational methodologies.","Develops mitigation actions for identified project risks.","Tracks issue resolution activities and follows up with responsible stakeholders.","Reviews project risks regularly to ensure mitigation plans remain effective.","Updates project risk registers based on implementation progress and business changes."]),
+      L('Proficient','Independently manages project risks and issues while minimizing their impact on successful project delivery.',["Conducts comprehensive qualitative and quantitative risk assessments throughout the project lifecycle.","Prioritizes project risks according to probability, business impact, and customer expectations.","Develops contingency plans that reduce delivery disruption and operational uncertainty.","Leads issue resolution activities involving multiple departments and external stakeholders.","Uses lessons learned to strengthen future project risk management practices."]),
+      L('Advanced','Leads enterprise-level risk management activities while improving organizational project resilience.',["Facilitates cross-functional risk workshops for strategic and high-impact projects.","Develops advanced mitigation strategies addressing technical, operational, financial, and customer risks.","Coaches project managers on proactive risk identification and structured issue resolution.","Improves organizational risk management processes through continuous analysis and governance.","Reduces project disruption by embedding proactive risk management into delivery practices."]),
+      L('Expert / Strategic','Shapes enterprise project risk management strategy and strengthens organizational resilience.',["Establishes project risk governance standards and enterprise risk management methodologies.","Defines organizational policies for project issue escalation and executive decision-making.","Uses portfolio risk analytics to influence strategic planning and investment decisions.","Develops enterprise capability through mentoring senior project leaders in advanced risk management.","Promotes a proactive organizational culture focused on prevention, resilience, and continuous improvement."])
+    ]},
+    {name:'Resource Optimization', level:4, levels:[
+      L('Awareness','Understands the principles of resource planning and supports effective utilization of project resources.',["Recognizes different project resource requirements including people, budget, equipment, and technology.","Maintains accurate resource allocation records and project schedules.","Reports resource shortages, scheduling conflicts, and availability constraints promptly.","Supports resource planning activities according to organizational procedures.","Escalates resource issues that may affect project delivery."]),
+      L('Basic Application','Applies resource planning techniques while supporting efficient project execution.',["Allocates project resources according to approved project plans and priorities.","Coordinates resource availability with functional managers and delivery teams.","Balances workload across project team members to maintain productivity.","Identifies resource conflicts and recommends practical allocation adjustments.","Tracks resource utilization throughout project execution."]),
+      L('Proficient','Independently optimizes project resources while maximizing operational efficiency and delivery performance.',["Forecasts future resource requirements based on project schedules and implementation demands.","Optimizes workforce allocation without compromising project quality or customer commitments.","Resolves competing resource priorities across concurrent projects.","Improves productivity by aligning resource capability with project complexity.","Supports strategic business objectives through effective capacity planning."]),
+      L('Advanced','Leads organizational resource optimization initiatives across multiple strategic projects.',["Develops resource optimization strategies that maximize organizational delivery capacity.","Coaches project managers on advanced capacity planning and workload balancing techniques.","Aligns resource allocation with changing business priorities and strategic initiatives.","Improves organizational utilization while minimizing delivery delays and operational waste.","Supports executive resource planning decisions using performance data and forecasting."]),
+      L('Expert / Strategic','Shapes enterprise resource management strategy and strengthens long-term organizational capability.',["Establishes enterprise resource planning standards across the project management function.","Develops workforce planning models aligned with future organizational growth.","Influences executive resource investment decisions using portfolio capacity analysis.","Optimizes organizational capability through strategic workforce planning and succession readiness.","Builds a culture of efficient, sustainable, and data-driven resource management."])
+    ]},
+    {name:'Delivery Governance', level:5, levels:[
+      L('Awareness','Understands project governance principles and follows established organizational governance practices.',["Demonstrates a basic understanding of project governance structures, approval processes, and reporting requirements.","Maintains governance documentation accurately and in accordance with organizational standards.","Follows established project management methodologies, templates, and quality procedures.","Supports governance reviews by preparing required project documentation.","Escalates governance or compliance concerns to the project manager when appropriate."]),
+      L('Basic Application','Applies governance practices throughout routine project execution with limited supervision.',["Produces governance reports that accurately reflect project performance and compliance status.","Coordinates project review meetings and follows up on governance actions.","Ensures project documentation complies with organizational standards and audit requirements.","Supports quality assurance activities throughout the project lifecycle.","Maintains governance records that facilitate project transparency and accountability."]),
+      L('Proficient','Independently manages delivery governance activities while ensuring consistent, compliant, and high-quality project execution.',["Conducts governance reviews to verify compliance with project methodologies and delivery standards.","Monitors delivery KPIs to evaluate project health, quality, and implementation performance.","Identifies governance gaps and recommends corrective actions before project performance is affected.","Ensures project decisions, approvals, and changes are documented and governed appropriately.","Strengthens delivery consistency by promoting governance best practices across project teams."]),
+      L('Advanced','Leads governance activities across complex projects while strengthening organizational project assurance capability.',["Establishes governance frameworks that improve project transparency, accountability, and executive oversight.","Leads quality assurance reviews across multiple strategic initiatives.","Coaches project managers on governance compliance, project controls, and assurance methodologies.","Improves governance processes through lessons learned, audits, and performance analysis.","Strengthens organizational confidence by ensuring consistent project delivery standards."]),
+      L('Expert / Strategic','Shapes enterprise delivery governance strategy and drives excellence in organizational project execution.',["Establishes enterprise governance standards aligned with organizational strategy and international project management practices.","Develops governance frameworks that improve portfolio visibility, decision-making, and delivery performance.","Influences executive leadership through governance reporting, assurance metrics, and portfolio insights.","Builds organizational capability by mentoring project leaders in governance excellence and project assurance.","Drives a culture of accountability, compliance, transparency, and continuous improvement across the entire project portfolio."])
+    ]}
+  ],
+  'marketing-specialist':[
+    {name:'Market Intelligence', level:5, levels:[
+      L('Awareness','Understands the fundamentals of market intelligence and follows established research methodologies to support marketing decisions.',["Demonstrates a basic understanding of the organization's products, target markets, competitors, and industry landscape.","Collects market information from approved internal and external sources accurately.","Assists in monitoring competitor activities, pricing strategies, and product developments.","Maintains organized market research data and updates marketing databases regularly.","Escalates significant market changes or competitive threats to the marketing team."]),
+      L('Basic Application','Applies market intelligence techniques to support routine marketing planning and business development activities.',["Conducts structured market research using surveys, industry reports, and digital research tools.","Analyzes competitor positioning to identify opportunities and potential business risks.","Identifies emerging market trends that may influence customer demand or business strategy.","Prepares market intelligence reports that support campaign planning and commercial decisions.","Collaborates with sales and product teams to validate market findings."]),
+      L('Proficient','Independently manages market intelligence activities while providing actionable insights that support business growth.',["Evaluates market opportunities using competitive analysis, customer trends, and commercial data.","Identifies gaps in the market that support new products, services, or customer segments.","Translates research findings into strategic recommendations for marketing and sales leadership.","Monitors market changes continuously and recommends timely strategic adjustments.","Supports executive decision-making through accurate, evidence-based market intelligence."]),
+      L('Advanced','Leads complex market intelligence initiatives while strengthening the organization\'s competitive positioning.',["Develops comprehensive market intelligence frameworks that improve strategic planning.","Leads competitive benchmarking initiatives across products, services, and target industries.","Coaches marketing team members on advanced market research and competitive analysis techniques.","Identifies long-term market opportunities through trend forecasting and customer analysis.","Influences commercial strategy by delivering high-impact market insights to senior leadership."]),
+      L('Expert / Strategic','Shapes the organization\'s market intelligence strategy and drives long-term competitive advantage.',["Establishes enterprise market intelligence standards, governance, and research methodologies.","Influences corporate strategy through advanced market forecasting and competitive analysis.","Builds strategic partnerships with research providers and industry experts.","Develops organizational capability in market analysis through mentoring and knowledge sharing.","Creates a culture of data-driven decision-making across marketing and commercial functions."])
+    ]},
+    {name:'Campaign Strategy', level:5, levels:[
+      L('Awareness','Understands campaign planning principles and supports marketing campaign execution using established organizational processes.',["Demonstrates a basic understanding of campaign objectives, target audiences, and communication channels.","Assists in preparing campaign materials according to approved marketing guidelines.","Supports campaign scheduling and execution activities under supervision.","Maintains campaign documentation and performance records accurately.","Reports campaign issues that require additional support."]),
+      L('Basic Application','Applies campaign planning techniques while supporting multi-channel marketing initiatives.',["Develops campaign plans aligned with defined marketing objectives.","Coordinates campaign activities across digital, social media, email, and offline channels.","Monitors campaign execution to ensure timelines and deliverables are achieved.","Collaborates with designers, content creators, and sales teams during campaign implementation.","Tracks campaign progress and recommends operational improvements."]),
+      L('Proficient','Independently manages marketing campaigns that achieve measurable business objectives.',["Designs integrated marketing campaigns aligned with customer journey and business strategy.","Selects the most effective communication channels based on audience behavior and campaign goals.","Optimizes campaign budgets while maximizing marketing performance.","Evaluates campaign effectiveness using performance metrics and marketing analytics.","Recommends campaign improvements based on customer response and business results."]),
+      L('Advanced','Leads complex marketing campaigns while improving campaign management capability across the organization.',["Develops integrated campaigns supporting multiple products, regions, and customer segments.","Optimizes campaign performance through continuous testing and data-driven decision-making.","Coaches marketing specialists on campaign planning methodologies and execution best practices.","Coordinates cross-functional teams to deliver consistent customer experiences.","Establishes campaign governance processes that improve execution quality and efficiency."]),
+      L('Expert / Strategic','Shapes the organization\'s campaign strategy and drives sustainable demand through integrated marketing initiatives.',["Establishes enterprise campaign planning standards aligned with organizational strategy.","Influences executive marketing decisions through campaign analytics and performance insights.","Develops long-term campaign frameworks that strengthen brand positioning and revenue growth.","Builds organizational capability by mentoring future marketing leaders.","Promotes innovation in campaign strategy through continuous market experimentation."])
+    ]},
+    {name:'Customer Insights', level:4, levels:[
+      L('Awareness','Understands customer behavior principles and supports customer insight activities using approved research methods.',["Collects customer feedback through surveys, interviews, and digital channels.","Maintains accurate customer research records.","Recognizes common customer needs and behavioral patterns.","Assists in organizing customer feedback for analysis.","Escalates recurring customer concerns for further investigation."]),
+      L('Basic Application','Applies customer insight techniques to support marketing and customer experience initiatives.',["Analyzes customer feedback to identify satisfaction drivers and improvement opportunities.","Segments customers according to demographics, behavior, and business needs.","Identifies buying patterns that influence marketing decisions.","Collaborates with sales and customer service teams to validate customer insights.","Produces customer insight reports supporting campaign development."]),
+      L('Proficient','Independently generates customer insights that influence marketing strategy and business decisions.',["Develops customer personas based on behavioral and commercial analysis.","Identifies customer pain points throughout the customer journey.","Recommends improvements that strengthen customer engagement and retention.","Supports product and service development using customer intelligence.","Translates customer behavior into strategic business recommendations."]),
+      L('Advanced','Leads customer insight initiatives that improve customer experience and marketing effectiveness.',["Designs advanced customer research programs supporting strategic business decisions.","Integrates customer data from multiple sources to generate actionable insights.","Coaches marketing teams on customer analytics and behavioral research techniques.","Identifies future customer needs through predictive analysis.","Improves organizational customer understanding through continuous research initiatives."]),
+      L('Expert / Strategic','Shapes the organization\'s customer insight strategy and embeds customer-centric decision-making across the business.',["Establishes customer insight frameworks that guide enterprise marketing strategy.","Influences executive decisions through customer analytics and behavioral intelligence.","Develops organizational capability in customer research and data interpretation.","Aligns customer intelligence with long-term commercial strategy.","Creates a customer-centric culture supported by evidence-based decision-making."])
+    ]},
+    {name:'Demand Generation', level:5, levels:[
+      L('Awareness','Understands demand generation principles and supports lead generation activities using approved marketing processes.',["Demonstrates a basic understanding of the marketing funnel and lead generation concepts.","Assists in executing demand generation campaigns across approved channels.","Maintains lead databases accurately within marketing systems.","Tracks campaign responses and lead activity.","Escalates lead quality concerns when appropriate."]),
+      L('Basic Application','Applies demand generation techniques to support qualified lead acquisition and pipeline growth.',["Executes lead generation campaigns targeting defined customer segments.","Coordinates marketing automation activities supporting lead nurturing.","Collaborates with sales teams to improve lead quality and conversion.","Monitors lead generation KPIs and campaign performance.","Recommends improvements that increase marketing-qualified leads."]),
+      L('Proficient','Independently manages demand generation initiatives that contribute directly to revenue growth.',["Develops lead generation strategies aligned with organizational sales objectives.","Optimizes conversion rates throughout the marketing funnel.","Identifies high-performing acquisition channels using marketing analytics.","Improves lead quality through customer segmentation and targeting strategies.","Supports revenue growth by delivering qualified sales opportunities."]),
+      L('Advanced','Leads demand generation strategy across multiple business units and target markets.',["Develops integrated lead generation frameworks supporting business expansion.","Optimizes marketing automation workflows and lead nurturing programs.","Coaches marketing teams on demand generation best practices.","Coordinates cross-functional initiatives that improve pipeline performance.","Strengthens alignment between marketing and sales through shared performance objectives."]),
+      L('Expert / Strategic','Shapes enterprise demand generation strategy that drives sustainable business growth.',["Establishes demand generation governance across the organization.","Influences executive commercial strategy through marketing pipeline analytics.","Develops scalable acquisition strategies supporting long-term revenue objectives.","Builds organizational capability in marketing automation and lead management.","Drives continuous innovation in customer acquisition and revenue generation."])
+    ]},
+    {name:'Marketing Performance Optimization', level:5, levels:[
+      L('Awareness','Understands marketing performance measurement principles and supports campaign reporting activities.',["Demonstrates a basic understanding of marketing KPIs and campaign metrics.","Collects campaign performance data accurately.","Maintains dashboards and marketing reports according to organizational standards.","Supports routine performance reviews.","Reports data inconsistencies for correction."]),
+      L('Basic Application','Applies marketing performance analysis techniques to improve campaign effectiveness.',["Analyzes campaign KPIs including CTR, conversion rate, CPL, CAC, and ROI.","Identifies performance trends using marketing dashboards.","Prepares reports highlighting strengths, weaknesses, and improvement opportunities.","Supports A/B testing initiatives for campaign optimization.","Recommends tactical improvements based on campaign analytics."]),
+      L('Proficient','Independently optimizes marketing performance using advanced analytics and business intelligence.',["Evaluates marketing effectiveness across multiple acquisition channels.","Identifies performance gaps and develops optimization strategies.","Improves return on marketing investment through data-driven decision-making.","Builds executive dashboards that support strategic planning.","Translates marketing analytics into business recommendations."]),
+      L('Advanced','Leads marketing performance optimization initiatives while strengthening organizational analytical capability.',["Establishes marketing performance frameworks supporting continuous improvement.","Develops advanced dashboards integrating marketing, sales, and customer performance metrics.","Coaches marketing teams on analytics, experimentation, and optimization methodologies.","Leads strategic performance reviews across multiple campaigns and business units.","Improves marketing efficiency through predictive analytics and performance modeling."]),
+      L('Expert / Strategic','Shapes the organization\'s marketing performance strategy and drives data-driven marketing excellence.',["Establishes enterprise marketing measurement standards and performance governance.","Influences executive marketing investment decisions using advanced performance analytics.","Develops long-term optimization strategies supporting sustainable business growth.","Builds organizational analytical capability through mentoring and knowledge development.","Creates a culture of continuous optimization supported by measurable business outcomes."])
+    ]}
+  ]
+};
+
+const ARCH_FLOW = [
+  {label:'Business Strategy', sub:'Bevatel growth & market direction'},
+  {label:'Core Competencies', sub:'Shared across all roles'},
+  {label:'Functional Competencies', sub:'Role-specific capabilities'},
+  {label:'Leadership Competencies', sub:'Sales Manager & Project Manager'},
+  {label:'Behavioral Indicators', sub:'Observable, measurable actions'},
+  {label:'Competency Matrix', sub:'Proficiency levels 1–5 by role'}
+];
+
+/* ============================= COMPUTED STATS ============================= */
+const TOTAL_FUNCTIONAL = Object.values(FUNCTIONAL).reduce((a,r)=>a+r.length,0);
+const TOTAL_COMPETENCIES = CORE.length + TOTAL_FUNCTIONAL + LEADERSHIP.competencies.length;
+const TOTAL_INDICATORS = (() => {
+  let n = 0;
+  Object.values(FUNCTIONAL).forEach(role => role.forEach(c => c.levels.forEach(lv => n += lv.indicators.length)));
+  return n;
+})();
+
+/* ============================= UTIL ============================= */
+function levelBadge(v){ return `<div class="level-badge" style="background:${LEVEL_COLOR[v]}" title="Level ${v} — ${LEVEL_NAMES[v]}">${v}</div>`; }
+function roleName(id){ return ROLES.find(r=>r.id===id).name; }
+
+/* ============================= NAV ============================= */
+const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item=>{
+  item.addEventListener('click', ()=>{
+    navItems.forEach(n=>n.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+item.dataset.view).classList.add('active');
+    document.getElementById('overlay').classList.remove('show');
+    document.getElementById('sidebar').classList.remove('open');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+document.getElementById('menuToggle').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+});
+document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+document.getElementById('overlay').addEventListener('click', closeSidebar);
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+/* ============================= THEME ============================= */
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', ()=>{
+  const cur = document.body.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  themeToggle.innerHTML = next === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+  refreshAllCharts();
+});
+
+/* ============================= DATE ============================= */
+document.getElementById('dateChip').textContent = new Date().toLocaleDateString('en-US',{weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+/* ============================= COUNTER ANIMATION ============================= */
+function animateCounter(el, target, suffix=''){
+  let cur = 0; const steps = 40; const inc = target/steps;
+  const t = setInterval(()=>{ cur += inc; if(cur>=target){ cur = target; clearInterval(t);} el.textContent = Math.round(cur)+suffix; }, 25);
+}
+function observeCounters(){
+  document.querySelectorAll('[data-counter]').forEach(el=>{
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting && !el.dataset.done){ el.dataset.done='1'; animateCounter(el, +el.dataset.counter, el.dataset.suffix||''); }
+      });
+    }, {threshold:.4});
+    io.observe(el);
+  });
+}
+
+/* ============================= RENDER: OVERVIEW ============================= */
+function renderOverview(){
+  const kpis = [
+    {label:'Core Competencies', value:CORE.length, icon:'fa-star', color:'var(--primary)'},
+    {label:'Functional Competencies', value:TOTAL_FUNCTIONAL, icon:'fa-layer-group', color:'var(--success)'},
+    {label:'Leadership Competencies', value:LEADERSHIP.competencies.length, icon:'fa-chess-king', color:'var(--warning)'},
+    {label:'Total Competencies', value:TOTAL_COMPETENCIES, icon:'fa-diagram-project', color:'var(--danger)'},
+    {label:'Job Roles', value:ROLES.length, icon:'fa-users-gear', color:'var(--primary)'},
+    {label:'Competency Levels', value:5, icon:'fa-signal', color:'var(--success)'},
+    {label:'Behavioral Indicators', value:TOTAL_INDICATORS, icon:'fa-list-check', color:'var(--warning)'},
+    {label:'Competency Matrices', value:6, icon:'fa-table-cells', color:'var(--danger)'}
+  ];
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:color-mix(in srgb, ${k.color} 16%, transparent); color:${k.color};"><i class="fa-solid ${k.icon}"></i></div>
+      <div class="kpi-value" data-counter="${k.value}">0</div>
+      <div class="kpi-label">${k.label}</div>
+    </div>`).join('');
+  document.getElementById('overviewRoles').innerHTML = ROLES.map(r=>`
+    <div class="comp-card">
+      <div class="comp-icon"><i class="fa-solid ${r.icon}"></i></div>
+      <h4>${r.name}</h4><p>${r.tagline}</p>
+    </div>`).join('');
+  observeCounters();
+}
+
+/* ============================= RENDER: ARCHITECTURE ============================= */
+function renderArchitecture(){
+  const c = document.getElementById('flowContainer');
+  c.innerHTML = ARCH_FLOW.map((f,i)=>`
+    <div class="flow-node n${i}" style="transition-delay:${i*120}ms;"><div>${f.label}</div><span class="fn-sub">${f.sub}</span></div>
+    ${i<ARCH_FLOW.length-1 ? '<div class="flow-arrow"><i class="fa-solid fa-arrow-down"></i></div>' : ''}
+  `).join('');
+  setTimeout(()=>document.querySelectorAll('.flow-node').forEach(n=>n.classList.add('show')), 100);
+}
+
+/* ============================= RENDER: CORE ============================= */
+function renderCore(){
+  document.getElementById('coreGrid').innerHTML = CORE.map(c=>`
+    <div class="comp-card">
+      <div class="comp-icon"><i class="fa-solid ${c.icon}"></i></div>
+      <h4>${c.name}</h4><p>${c.desc}</p>
+      <div class="comp-levels">${CORE_MATRIX.roles.map((r,i)=>{
+        const row = CORE_MATRIX.rows.find(x=>x.name===c.name);
+        return `<div class="lv-pip" style="background:${LEVEL_COLOR[row.levels[i]]};" title="${r}: Level ${row.levels[i]}"></div>`;
+      }).join('')}</div>
+    </div>`).join('');
+}
+
+/* ============================= RENDER: FUNCTIONAL ACCORDION ============================= */
+function renderFunctional(){
+  const wrap = document.getElementById('accordionWrap');
+  wrap.innerHTML = ROLES.map(role=>{
+    const comps = FUNCTIONAL[role.id];
+    return `
+    <div class="accordion-item" id="acc-${role.id}">
+      <div class="accordion-head" onclick="toggleAccordion('${role.id}')">
+        <div class="ah-left"><div class="role-tag"><i class="fa-solid ${role.icon}"></i></div>
+          <div><h4>${role.name}</h4><span>${comps.length} functional competencies</span></div>
+        </div>
+        <i class="fa-solid fa-chevron-down chev"></i>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-inner">
+          ${comps.map(c=>`
+            <div class="mini-comp">
+              <div class="mc-top"><h5>${c.name}</h5><span class="lvl-chip" style="background:${LEVEL_COLOR[c.level]}">L${c.level}</span></div>
+              <p style="font-size:11.5px;color:var(--text-2);line-height:1.5;">${c.levels[c.level-1].summary}</p>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleAccordion(id){
+  const el = document.getElementById('acc-'+id);
+  const body = el.querySelector('.accordion-body');
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.accordion-item').forEach(a=>{ a.classList.remove('open'); a.querySelector('.accordion-body').style.maxHeight=null; });
+  if(!isOpen){ el.classList.add('open'); body.style.maxHeight = body.scrollHeight+'px'; }
+}
+
+/* ============================= RENDER: LEADERSHIP ============================= */
+function renderLeadership(){
+  document.getElementById('leadershipGrid').innerHTML = LEADERSHIP.competencies.map(c=>`
+    <div class="comp-card"><div class="comp-icon"><i class="fa-solid ${c.icon}"></i></div><h4>${c.name}</h4><p>${c.desc}</p></div>
+  `).join('');
+  const tbl = document.getElementById('leadershipMatrixTable');
+  tbl.innerHTML = `<thead><tr><th>Competency</th>${LEADERSHIP.roles.map(r=>`<th style="text-align:center;">${r}</th>`).join('')}</tr></thead>
+  <tbody>${LEADERSHIP.matrix.map(row=>`<tr><td>${row.name}</td>${row.levels.map(v=>`<td><div class="level-cell">${levelBadge(v)}</div></td>`).join('')}</tr>`).join('')}</tbody>`;
+  document.getElementById('legendLeadership').innerHTML = legendHTML();
+}
+function legendHTML(){
+  return [1,2,3,4,5].map(v=>`<div><span style="background:${LEVEL_COLOR[v]}"></span>Level ${v} — ${LEVEL_NAMES[v]}</div>`).join('');
+}
+
+/* ============================= RENDER: MATRIX (interactive) ============================= */
+let currentMatrixView = 'core';
+function renderMatrixTabs(){
+  const tabs = [
+    {id:'core', label:'Core Competencies'},
+    ...ROLES.map(r=>({id:r.id, label:r.name+' — Functional'})),
+    {id:'leadership', label:'Leadership'}
+  ];
+  document.getElementById('matrixTabs').innerHTML = tabs.map(t=>`<div class="chip-btn ${t.id===currentMatrixView?'active':''}" data-mv="${t.id}">${t.label}</div>`).join('');
+  document.querySelectorAll('[data-mv]').forEach(el=>el.addEventListener('click', ()=>{ currentMatrixView = el.dataset.mv; renderMatrixTabs(); renderMatrixTable(); }));
+}
+function renderMatrixTable(){
+  const tbl = document.getElementById('matrixTable');
+  if(currentMatrixView==='core'){
+    tbl.innerHTML = `<thead><tr><th>Competency</th>${CORE_MATRIX.roles.map(r=>`<th style="text-align:center;">${r}</th>`).join('')}</tr></thead>
+    <tbody>${CORE_MATRIX.rows.map(row=>`<tr><td>${row.name}</td>${row.levels.map(v=>`<td><div class="level-cell">${levelBadge(v)}</div></td>`).join('')}</tr>`).join('')}</tbody>`;
+  } else if(currentMatrixView==='leadership'){
+    tbl.innerHTML = `<thead><tr><th>Competency</th>${LEADERSHIP.roles.map(r=>`<th style="text-align:center;">${r}</th>`).join('')}</tr></thead>
+    <tbody>${LEADERSHIP.matrix.map(row=>`<tr><td>${row.name}</td>${row.levels.map(v=>`<td><div class="level-cell">${levelBadge(v)}</div></td>`).join('')}</tr>`).join('')}</tbody>`;
+  } else {
+    const comps = FUNCTIONAL[currentMatrixView];
+    tbl.innerHTML = `<thead><tr><th>Competency</th><th style="text-align:center;">Required Level</th><th>Definition</th></tr></thead>
+    <tbody>${comps.map(c=>`<tr><td>${c.name}</td><td><div class="level-cell">${levelBadge(c.level)}</div></td><td style="color:var(--text-2);">${c.levels[c.level-1].title} — ${c.levels[c.level-1].summary}</td></tr>`).join('')}</tbody>`;
+  }
+  document.getElementById('legendMain').innerHTML = legendHTML();
+}
+
+/* ============================= RENDER: ROLE EXPLORER ============================= */
+let currentRole = ROLES[0].id;
+let currentRoleCompIdx = {}; // track selected level tab per competency card
+
+function renderRoleTabs(){
+  document.getElementById('roleTabs').innerHTML = ROLES.map(r=>`<div class="role-tab ${r.id===currentRole?'active':''}" data-role="${r.id}"><i class="fa-solid ${r.icon}"></i>${r.name}</div>`).join('');
+  document.querySelectorAll('[data-role]').forEach(el=>el.addEventListener('click', ()=>{ currentRole = el.dataset.role; renderRoleView(); }));
+}
+function renderRoleView(){
+  renderRoleTabs();
+  const role = ROLES.find(r=>r.id===currentRole);
+  const comps = FUNCTIONAL[currentRole];
+  const coreRow = CORE_MATRIX.roles.indexOf(role.name);
+  const avgCore = (CORE_MATRIX.rows.reduce((a,r)=>a+r.levels[coreRow],0)/CORE_MATRIX.rows.length).toFixed(1);
+  const avgFunc = (comps.reduce((a,c)=>a+c.level,0)/comps.length).toFixed(1);
+  document.getElementById('roleHero').innerHTML = `
+    <h3><i class="fa-solid ${role.icon}" style="color:var(--primary);margin-right:8px;"></i>${role.name}</h3>
+    <p>${role.tagline}</p>
+    <div class="role-stats">
+      <div><span>${comps.length}</span><small>Functional Competencies</small></div>
+      <div><span>${avgCore}</span><small>Avg. Core Level</small></div>
+      <div><span>${avgFunc}</span><small>Avg. Functional Level</small></div>
+      <div><span>${LEADERSHIP.roles.includes(role.name)?'Yes':'No'}</span><small>Leadership Track</small></div>
+    </div>`;
+  document.getElementById('roleCoreGrid').innerHTML = CORE_MATRIX.rows.map(row=>`
+    <div class="comp-card">
+      <div class="mc-top" style="display:flex;justify-content:space-between;align-items:center;">
+        <h4 style="font-size:14px;">${row.name}</h4>
+        <span class="lvl-chip" style="background:${LEVEL_COLOR[row.levels[coreRow]]}">L${row.levels[coreRow]}</span>
+      </div>
+      <p style="margin-top:8px;">${CORE.find(c=>c.name===row.name).desc}</p>
+    </div>`).join('');
+
+  document.getElementById('roleFunctionalWrap').innerHTML = comps.map((c,i)=>`
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+        <div><h4 style="font-size:15px;">${c.name}</h4><span style="font-size:11.5px;color:var(--text-2);">Required Level: ${c.level} — ${LEVEL_NAMES[c.level]}</span></div>
+        <div class="level-tabs" id="ltabs-${currentRole}-${i}">
+          ${[1,2,3,4,5].map(lv=>`<div class="level-tab ${lv===c.level?'active':''}" style="background:${LEVEL_COLOR[lv]}" data-lv="${lv}" data-ridx="${i}">${lv}</div>`).join('')}
+        </div>
+      </div>
+      <div class="level-detail" id="ldetail-${currentRole}-${i}"></div>
+    </div>`).join('');
+
+  comps.forEach((c,i)=> renderLevelDetail(currentRole, i, c.level));
+  document.querySelectorAll('.level-tab').forEach(t=>t.addEventListener('click', function(){
+    const ridx = +this.dataset.ridx; const lv = +this.dataset.lv;
+    document.querySelectorAll(`#ltabs-${currentRole}-${ridx} .level-tab`).forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+    renderLevelDetail(currentRole, ridx, lv);
+  }));
+}
+function renderLevelDetail(roleId, idx, level){
+  const c = FUNCTIONAL[roleId][idx];
+  const d = c.levels[level-1];
+  document.getElementById(`ldetail-${roleId}-${idx}`).innerHTML = `
+    <h5 style="color:${LEVEL_COLOR[level]}">Level ${level} — ${d.title}</h5>
+    <p class="ld-summary">${d.summary}</p>
+    <ul>${d.indicators.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+}
+
+/* ============================= CHARTS ============================= */
+let charts = {};
+function chartTextColor(){ return getComputedStyle(document.body).getPropertyValue('--text-2').trim() || '#94A3B8'; }
+function chartGrid(){ return getComputedStyle(document.body).getPropertyValue('--border').trim() || 'rgba(148,163,184,.14)'; }
+
+function buildCharts(){
+  const ctx = id => document.getElementById(id).getContext('2d');
+  Chart.defaults.font.family = "Manrope";
+
+  charts.overviewDoughnut = new Chart(ctx('chartOverviewDoughnut'), {
+    type:'doughnut',
+    data:{ labels:['Core','Functional','Leadership'], datasets:[{ data:[CORE.length, TOTAL_FUNCTIONAL, LEADERSHIP.competencies.length], backgroundColor:['#3B82F6','#22C55E','#F59E0B'], borderWidth:0 }]},
+    options:{ plugins:{legend:{position:'bottom', labels:{color:chartTextColor(), font:{size:11}}}}, cutout:'68%', animation:{animateScale:true} }
+  });
+
+  const roleAvg = ROLES.map(r=>{
+    const idx = CORE_MATRIX.roles.indexOf(r.name);
+    const core = CORE_MATRIX.rows.reduce((a,x)=>a+x.levels[idx],0)/CORE_MATRIX.rows.length;
+    const func = FUNCTIONAL[r.id].reduce((a,x)=>a+x.level,0)/FUNCTIONAL[r.id].length;
+    return ((core+func)/2).toFixed(2);
+  });
+  charts.overviewBar = new Chart(ctx('chartOverviewBar'), {
+    type:'bar',
+    data:{ labels:ROLES.map(r=>r.name.split(' ')[0]), datasets:[{ label:'Avg Level', data:roleAvg, backgroundColor:'#3B82F6', borderRadius:8, maxBarThickness:46 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ y:{ min:0, max:5, ticks:{color:chartTextColor()}, grid:{color:chartGrid()} }, x:{ ticks:{color:chartTextColor()}, grid:{display:false} } } }
+  });
+
+  // Analytics: radar - core competencies by role
+  charts.radar = new Chart(ctx('chartRadar'), {
+    type:'radar',
+    data:{ labels:CORE_MATRIX.rows.map(r=>r.name), datasets: CORE_MATRIX.roles.map((r,i)=>({
+      label:r, data:CORE_MATRIX.rows.map(row=>row.levels[i]),
+      borderColor:['#3B82F6','#22C55E','#F59E0B','#EF4444'][i], backgroundColor:['#3B82F6','#22C55E','#F59E0B','#EF4444'][i]+'22', pointBackgroundColor:['#3B82F6','#22C55E','#F59E0B','#EF4444'][i], borderWidth:2
+    }))},
+    options:{ plugins:{legend:{position:'bottom', labels:{color:chartTextColor(), font:{size:10}, boxWidth:10}}}, scales:{ r:{ min:0, max:5, ticks:{stepSize:1, color:chartTextColor(), backdropColor:'transparent'}, grid:{color:chartGrid()}, angleLines:{color:chartGrid()}, pointLabels:{color:chartTextColor(), font:{size:10}} } } }
+  });
+
+  // Bar functional by role
+  charts.barFunctional = new Chart(ctx('chartBarFunctional'), {
+    type:'bar',
+    data:{ labels:ROLES.map(r=>r.name), datasets:[{ label:'Avg Functional Level', data:ROLES.map(r=>(FUNCTIONAL[r.id].reduce((a,x)=>a+x.level,0)/FUNCTIONAL[r.id].length).toFixed(2)), backgroundColor:['#3B82F6','#22C55E','#F59E0B','#EF4444'], borderRadius:8, maxBarThickness:50 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ y:{min:0,max:5, ticks:{color:chartTextColor()}, grid:{color:chartGrid()}}, x:{ ticks:{color:chartTextColor(), font:{size:10}}, grid:{display:false} } } }
+  });
+
+  // Level distribution across all matrix values
+  const levelCounts = [0,0,0,0,0];
+  CORE_MATRIX.rows.forEach(r=>r.levels.forEach(v=>levelCounts[v-1]++));
+  LEADERSHIP.matrix.forEach(r=>r.levels.forEach(v=>levelCounts[v-1]++));
+  Object.values(FUNCTIONAL).forEach(role=>role.forEach(c=>levelCounts[c.level-1]++));
+  charts.levelDist = new Chart(ctx('chartLevelDist'), {
+    type:'bar',
+    data:{ labels:['L1','L2','L3','L4','L5'], datasets:[{ data:levelCounts, backgroundColor:['#64748B','#3B82F6','#22C55E','#F59E0B','#EF4444'], borderRadius:8 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:chartTextColor(), stepSize:1}, grid:{color:chartGrid()} }, x:{ ticks:{color:chartTextColor()}, grid:{display:false} } } }
+  });
+
+  charts.pieType = new Chart(ctx('chartPieType'), {
+    type:'pie',
+    data:{ labels:['Core','Functional','Leadership'], datasets:[{ data:[CORE.length, TOTAL_FUNCTIONAL, LEADERSHIP.competencies.length], backgroundColor:['#3B82F6','#22C55E','#F59E0B'] }]},
+    options:{ plugins:{legend:{position:'bottom', labels:{color:chartTextColor(), font:{size:11}}}} }
+  });
+
+  charts.hbar = new Chart(ctx('chartHBar'), {
+    type:'bar',
+    data:{ labels:ROLES.map(r=>r.name), datasets:[{ data:roleAvg, backgroundColor:'#22C55E', borderRadius:8 }]},
+    options:{ indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{min:0,max:5, ticks:{color:chartTextColor()}, grid:{color:chartGrid()}}, y:{ ticks:{color:chartTextColor(), font:{size:10}}, grid:{display:false} } } }
+  });
+
+  charts.statsBar = new Chart(ctx('chartStatsBar'), {
+    type:'bar',
+    data:{ labels:ROLES.map(r=>r.name), datasets:[{ label:'Functional Competencies', data:ROLES.map(r=>FUNCTIONAL[r.id].length), backgroundColor:'#3B82F6', borderRadius:8, maxBarThickness:50 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:chartTextColor(), stepSize:1}, grid:{color:chartGrid()} }, x:{ ticks:{color:chartTextColor(), font:{size:10}}, grid:{display:false} } } }
+  });
+
+  charts.statsDoughnut = new Chart(ctx('chartStatsDoughnut'), {
+    type:'doughnut',
+    data:{ labels:['Core','Functional','Leadership'], datasets:[{ data:[CORE.length, TOTAL_FUNCTIONAL, LEADERSHIP.competencies.length], backgroundColor:['#3B82F6','#22C55E','#F59E0B'], borderWidth:0 }]},
+    options:{ plugins:{legend:{position:'bottom', labels:{color:chartTextColor(), font:{size:11}}}}, cutout:'62%' }
+  });
+}
+function refreshAllCharts(){
+  Object.values(charts).forEach(ch=>{
+    ch.options.plugins.legend && ch.options.plugins.legend.labels && (ch.options.plugins.legend.labels.color = chartTextColor());
+    if(ch.options.scales){
+      Object.values(ch.options.scales).forEach(s=>{ if(s.ticks) s.ticks.color = chartTextColor(); if(s.grid) s.grid.color = chartGrid(); if(s.angleLines) s.angleLines.color = chartGrid(); if(s.pointLabels) s.pointLabels.color = chartTextColor(); });
+    }
+    ch.update();
+  });
+}
+
+/* ============================= STATISTICS ============================= */
+function renderStatistics(){
+  const stats = [
+    {v:TOTAL_COMPETENCIES, l:'Total Competencies'},
+    {v:ROLES.length, l:'Job Roles'},
+    {v:6, l:'Competency Matrices'},
+    {v:TOTAL_INDICATORS, l:'Behavioral Indicators'},
+    {v:5, l:'Proficiency Levels'}
+  ];
+  document.getElementById('statHero').innerHTML = stats.map(s=>`<div class="card"><div class="stat-num" data-counter="${s.v}">0</div><div class="stat-lbl">${s.l}</div></div>`).join('');
+  observeCounters();
+}
+
+/* ============================= SEARCH ============================= */
+document.getElementById('globalSearch').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  if(!q) return;
+  const allNames = [...CORE.map(c=>c.name), ...LEADERSHIP.competencies.map(c=>c.name), ...Object.values(FUNCTIONAL).flat().map(c=>c.name), ...ROLES.map(r=>r.name)];
+  // simple visual feedback via highlighting active nav suggestion not implemented deeply; kept lightweight per spec
+});
+
+/* ============================= INIT ============================= */
+renderOverview();
+renderArchitecture();
+renderCore();
+renderFunctional();
+renderLeadership();
+renderMatrixTabs();
+renderMatrixTable();
+renderRoleView();
+renderStatistics();
+buildCharts();
+</script>
+</body>
+</html>
